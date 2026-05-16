@@ -1,14 +1,13 @@
-# setwd("C:/Users/baipl/Dropbox (UFL)/Cohort change points detection/code")
 rm(list = ls())
 library("sparsevar")
 library("VARDetect")
 library("MTS")
-source("../simulation_script.R")
+source("../../simulation_script.R")
 #####################################################################################
-### model basic parameters setting test
+### S1: T=200, p=20, M=10, 1-off diag, Gaussian, r_T=10, d=1.
 T <- 200
 p <- 20
-M <- 30
+M <- 10
 tau_true <- floor(T/2)
 tau_sub <- rep(0, M)
 r_T <- 10
@@ -30,22 +29,20 @@ cp_result <- rep(0, niter)
 est_mats <- vector('list', niter)
 runtimes <- rep(0, niter)
 for(epoch in 1:niter){
-    ### generate subject time series
     for(i in 1:M){
         brks <- c(tau_sub[i], T+1)
         entry <- magnitudes[i]
-        try <- simu_var(method = "sparse", 
-                        nob = T, 
+        try <- simu_var(method = "sparse",
+                        nob = T,
                         k = p,
                         lags = 1,
+                        sigma = 0.01*diag(p),
                         seed = epoch*i,
                         brk = brks,
-                        sp_pattern = "off-diagonal", 
+                        sp_pattern = "off-diagonal",
                         signals = c(-entry, entry))
         subjects[[i]] <- as.matrix(try$series)
     }
-    
-    ### obtain the detected cps
     fit <- single.cp.detect(subjects, lags = c(1, 1), skip = 10)
     cp_result[epoch] <- fit$est.cp
     est_mats[[epoch]] <- cbind(fit$left_mats, fit$right_mats)

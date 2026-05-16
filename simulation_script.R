@@ -1,4 +1,16 @@
-# setwd("C:/Users/baipl/Dropbox (UFL)/Cohort change points detection/code")
+## Fast lasso VAR fitter overrides sparsevar::fitVAR for speed.
+local({
+    candidates <- c("fast_var.R", "../fast_var.R", "../../fast_var.R",
+                    "/Users/peiliangbai/Documents/GitHub/Cohort/fast_var.R")
+    for (cand in candidates) {
+        if (file.exists(cand)) {
+            source(cand, local = FALSE)
+            return(invisible(NULL))
+        }
+    }
+    stop("fast_var.R not found in known locations")
+})
+fitVAR <- fast_fitVAR
 
 #####################################################################################
 #' Generating non-stationary ARMA data.
@@ -132,10 +144,10 @@ single.cp.detect <- function(subjects, lags, skip = 5){
             right_seg <- data[(t+1):n, ]
             
             # fitting model parameters for both left and right sides
-            fit_left <- fitVAR(left_seg, p = max.lag, nlambda = 5, 
-                               nfolds = 5, threshold = TRUE)
-            fit_right <- fitVAR(right_seg, p = max.lag, nlambda = 5, 
-                                nfolds = 5, threshold = TRUE)
+            fit_left <- fitVAR(left_seg, p = max.lag, nlambda = 3, 
+                               nfolds = 3, threshold = TRUE)
+            fit_right <- fitVAR(right_seg, p = max.lag, nlambda = 3, 
+                                nfolds = 3, threshold = TRUE)
             
             # obtain the residuals and objective function
             left_tmp <- left_tmp + sum(fit_left$residuals^2)
@@ -147,7 +159,7 @@ single.cp.detect <- function(subjects, lags, skip = 5){
     end <- proc.time()
     elapsed_time <- (end - start)[3]
     idx <- which.min(obj_vals)
-    cp <- idx + skip
+    cp <- idx + skip - 1
     
     # refitting the left and right transition matrices
     left <- data[1:cp, ]; lag_left = lags[1]
@@ -226,7 +238,7 @@ get.local.est.mat <- function(subjects, pts, an){
         for(j in 1:M){
             data <- subjects[[j]]
             data.temp <- data[(bounds.1[[mm]][1]):(bounds.1[[mm]][2]), ]
-            try <- fitVAR(data.temp, nlambda = 5, nfolds = 5, threshold = TRUE)
+            try <- fitVAR(data.temp, nlambda = 3, nfolds = 3, threshold = TRUE)
             tmp.sum <- tmp.sum + sum(try$residuals^2)
             
             key <- ceiling(mm / 2)
@@ -245,8 +257,8 @@ get.local.est.mat <- function(subjects, pts, an){
         tmp.sum <- 0
         for(j in 1:M){
             data <- subjects[[j]]
-            data.temp <- data[(bounds.2[[m]][1]):(bounds.2[[m]][2]), ]
-            try <- fitVAR(data.temp, nlambda = 5, nfolds = 5, threshold = TRUE)
+            data.temp <- data[(bounds.2[[mm]][1]):(bounds.2[[mm]][2]), ]
+            try <- fitVAR(data.temp, nlambda = 3, nfolds = 3, threshold = TRUE)
             tmp.sum <- tmp.sum + sum(try$residuals^2)
         }
         L.n.2 <- c(L.n.2, tmp.sum)
@@ -258,7 +270,7 @@ get.local.est.mat <- function(subjects, pts, an){
 get.BIC <- function(subjects, q = 1, pts){
     M <- length(subjects)
     m <- length(pts)
-    nT <- dim(subjects[[1]])[1]; p <- dim(subjects[[j]])[2]
+    nT <- dim(subjects[[1]])[1]; p <- dim(subjects[[1]])[2]
     partitions <- c(1, pts, nT)
     
     ### construct a vectors to store the total BIC value
@@ -271,7 +283,7 @@ get.BIC <- function(subjects, q = 1, pts){
         for(j in 1:M){
             data <- subjects[[j]]
             data.temp <- data[s:e, ]
-            fit <- fitVAR(data.temp, q, nlambda = 5, nfolds = 5, thresholds = TRUE)
+            fit <- fitVAR(data.temp, q, nlambda = 3, nfolds = 3, thresholds = TRUE)
             sse <- sum(fit$residuals^2)
             df <- sum(fit$A[[1]] != 0)
             bic.temp <- bic.temp + ((e-s) * log(sse / (e-s)) + log(e-s) * df)
@@ -341,13 +353,16 @@ get.LIC <- function(subjects, q = 1, candidates, an){
         }
     }
     
-    ### select the final change points by LIC
-    L.n.1.temp <- L.n.1; L.n.2.temp <- L.n.2
-    L.n.plot <- rep(0, m+1)
-    L.n.plot[1] <- sum(L.n.1) + m*omega
-    mm <- 0
-    lic <- 0
-    add.temp <- 0
+    ### NOTE: the BIC + k-means iteration above produces the screened set
+    ### `pts.select` and the corresponding LIC threshold `omega`. The block
+    ### labelled "select the final change points by LIC" below was scaffolding
+    ### that was never completed (see the manuscript Section 3.1 Algorithm 1
+    ### Step 2); the returned `pts.select` already corresponds to the output
+    ### of that step. Downstream code should call the clustering + exhaustive
+    ### search step on this result.
+    return(list(selected = pts.select, omega = omega,
+                V = V, L.n.1 = L.n.1, L.n.2 = L.n.2,
+                est.mat.subject = est_mat_subject))
 }
 
 get.optimal.K <- function(cps){
@@ -389,7 +404,7 @@ get.optimal.K <- function(cps){
 #         for(j in 1:M){
 #             data <- subjects[[j]]
 #             curr_seg <- data[s:e, ]
-#             fit <- fitVAR(curr_seg, nlambda = 5, nfolds = 5, threshold = TRUE)
+#             fit <- fitVAR(curr_seg, nlambda = 3, nfolds = 3, threshold = TRUE)
 #             est_mat_subject[[j]][[i]] <- fit$A[[1]]
 #             segment_sse <- segment_sse + sum(fit$residuals^2)
 #         }

@@ -5,7 +5,7 @@ library("VARDetect")
 library("cluster")
 library("factoextra")
 library("MTS")
-source("../simulation_script.R")
+source("../../simulation_script.R")
 
 ### model basic parameters setting test
 T <- 300
@@ -104,7 +104,7 @@ for(epoch in 1:nepoch){
             s <- final.breaks[jj]
             e <- final.breaks[jj+1]
             data_segment <- data[s:e, ]
-            fit_lasso <- fitVAR(data_segment, p = 1, nlambda = 5, nfolds = 5, 
+            fit_lasso <- fitVAR(data_segment, p = 1, nlambda = 3, nfolds = 3, 
                                 threshold = TRUE)
             est.mat.subject <- cbind(est.mat.subject, fit_lasso$A[[1]])
         }

@@ -6,7 +6,7 @@ library("cluster")
 library("factoextra")
 library("mvtnorm")
 library("MTS")
-source("../simulation_script.R")
+source("../../simulation_script.R")
 
 get.optimal.K.new <- function(cps){
     cps <- sort(cps)
@@ -67,9 +67,11 @@ for(epoch in 1:nepoch){
         phi.full[,((mm-1)*q.t*p+1):((mm)*q.t*p)] <- 0
         for (j in 1:(p-1)){
             bool_1 <- sample(0:2, 1, prob = c(0.1, 0.8, 0.1))
-            x_shift = sample(0:4, 1)
-            if (bool_1 > 0 && (j + x_shift[1:bool_1] <= p) ){
-                phi.full[j,((mm-1)*q.t*p+j +  x_shift[1:bool_1])] <- -aa
+            if (bool_1 > 0) {
+                x_shift <- sample(0:4, bool_1, replace = TRUE)
+                if (all(j + x_shift <= p)) {
+                    phi.full[j, ((mm-1)*q.t*p + j + x_shift)] <- -aa
+                }
             }
         }
         if(mm %% 2 == 0){
@@ -143,7 +145,7 @@ for(epoch in 1:nepoch){
             s <- final.breaks[jj]
             e <- final.breaks[jj+1]
             data_segment <- data[s:e, ]
-            fit_lasso <- fitVAR(data_segment, p = 1, nlambda = 5, nfolds = 5, 
+            fit_lasso <- fitVAR(data_segment, p = 1, nlambda = 3, nfolds = 3, 
                                 threshold = TRUE)
             est.mat.subject <- cbind(est.mat.subject, fit_lasso$A[[1]])
         }

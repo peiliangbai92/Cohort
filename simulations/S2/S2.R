@@ -3,7 +3,7 @@ rm(list = ls())
 library("sparsevar")
 library("VARDetect")
 library("MTS")
-source("../simulation_script.R")
+source("../../simulation_script.R")
 #####################################################################################
 ### model basic parameters setting test
 T <- 300
@@ -26,7 +26,9 @@ for(k in 1:(p-1)){
 magnitudes <- sample(seq(0.55, 0.85, 0.1), M, replace = TRUE)
 
 niter <- 50
-cp_result = est_mats = runtimes <- vector('list', niter)
+cp_result <- vector('list', niter)
+est_mats <- vector('list', niter)
+runtimes <- rep(0, niter)
 for(epoch in 1:niter){
     ### generate subject time series
     for(i in 1:M){
@@ -48,9 +50,9 @@ for(epoch in 1:niter){
     fit <- single.cp.detect(subjects, lags = c(1, 1), skip = 10)
     cp_result[[epoch]] <- fit$est.cp
     est_mats[[epoch]] <- cbind(fit$left_mats, fit$right_mats)
-    runtime[[epoch]] <- fit$runtime
+    runtimes[epoch] <- fit$runtime
     print(epoch)
 }
 save(cp_result, file = 'estimated_cp.RData')
 save(est_mats, file = 'estimated_mats.RData')
-save(runtime, file = 'runtimes.RData')
+save(runtimes, file = 'runtimes.RData')

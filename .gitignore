@@ -1,0 +1,38 @@
+# macOS metadata
+.DS_Store
+
+# R session artifacts
+.Rhistory
+.RData
+.Ruserdata
+Rplots.pdf
+
+# Editor / IDE
+.Rproj.user/
+.vscode/
+.claude/
+
+# Local dev scratch
+sanity_check*.R
+S1_quickrun.R
+test_new_detectors.R
+
+# Intermediate run logs
+logs/
+logs_master.log
+
+# Allow simulation outputs (each scenario stores RData under simulations/<name>/)
+!simulations/**/*.RData
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.run.xml
+*.synctex.gz
+*.toc

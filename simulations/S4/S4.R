@@ -3,7 +3,7 @@ rm(list = ls())
 library("sparsevar")
 library("VARDetect")
 library("MTS")
-source("../simulation_script.R")
+source("../../simulation_script.R")
 #####################################################################################
 ### model basic parameters setting test
 T <- 200
