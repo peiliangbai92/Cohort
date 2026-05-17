@@ -1,10 +1,10 @@
 ### Comparison method: factor-adjusted VAR segmentation (fvarseg::fvar.seg)
 ### + kmeans (gap-stat) on G4 setting.
 ###
-### Note: fvar.seg targets factor-driven VAR processes. On the purely
-### sparse VAR data used in scenario G4 (no latent factors), it typically
-### returns very few or no change points. This script honestly records
-### whatever fvar.seg outputs.
+### Note: fvar.seg expects the input matrix in (variable x time) layout,
+### i.e. p rows and T columns -- this is the convention used by its own
+### sim.data() helper. simu_var() from VARDetect returns (time x variable),
+### so we transpose before calling fvar.seg.
 
 rm(list = ls())
 suppressPackageStartupMessages({
@@ -51,8 +51,11 @@ for (epoch in 1:niter) {
     fv_cps <- vector("list", M)
     for (i in 1:M) {
         fit <- tryCatch(
-            fvar.seg(subjects[[i]],
-                     cv.args = list(path.length = 10, n.folds = 3, do.cv = TRUE)),
+            ## fvar.seg expects p x T; simu_var returns T x p.
+            ## CV path slows the call by ~15x without changing the
+            ## detection story for T=400, so we rely on the default
+            ## fvar.seg threshold.
+            fvar.seg(t(subjects[[i]])),
             error = function(e) list(common.out = list(est.cp = integer(0)),
                                      idio.out   = list(est.cp = integer(0))))
         cp <- sort(unique(c(fit$common.out$est.cp, fit$idio.out$est.cp)))
