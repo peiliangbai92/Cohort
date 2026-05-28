@@ -21,6 +21,14 @@ test_new_detectors.R
 logs/
 logs_master.log
 
+# Raw EEG application data (Trujillo 2017, doi:10.18738/T8/EG0LJI, ~600 MB)
+raw_data/
+
+# Application reproduction caches (regenerable from raw_data via application/*.R)
+application/cache/
+application/cache_v2/
+application/cache_B/
+
 # Allow simulation outputs (each scenario stores RData under simulations/<name>/)
 !simulations/**/*.RData
 
