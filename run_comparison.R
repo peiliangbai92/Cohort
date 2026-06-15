@@ -1,7 +1,7 @@
 ### Run all three comparison methods (SBS, BSS, fvar.seg) in parallel.
 suppressPackageStartupMessages({ library(parallel) })
 
-repo <- "/Users/peiliangbai/Documents/GitHub/Cohort"
+repo <- getwd()   # run from the repo root
 setwd(repo)
 log_dir <- file.path(repo, "logs")
 dir.create(log_dir, showWarnings = FALSE)

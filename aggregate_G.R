@@ -3,7 +3,7 @@
 ###   scenario, truth (g, tau_j*/T), \hat g (mean #clusters), per-CP mean/sd,
 ###   global accuracy.
 
-repo_dir <- "/Users/peiliangbai/Documents/GitHub/Cohort"
+repo_dir <- getwd()   # run from the repo root
 setwd(repo_dir)
 
 scenario_meta <- list(

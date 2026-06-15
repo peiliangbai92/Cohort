@@ -12,25 +12,21 @@ Rplots.pdf
 .vscode/
 .claude/
 
-# Local dev scratch
-sanity_check*.R
-S1_quickrun.R
-test_new_detectors.R
-
-# Intermediate run logs
+# Intermediate run logs (regenerable via the aggregate_*.R scripts)
 logs/
 logs_master.log
 
 # Raw EEG application data (Trujillo 2017, doi:10.18738/T8/EG0LJI, ~600 MB)
 raw_data/
 
-# Application reproduction caches (regenerable from raw_data via application/*.R)
-application/cache/
-application/cache_v2/
-application/cache_B/
+# Application reproduction caches (regenerable from raw_data via application/run_application.R)
+application/cache/*
+# ...but ship the processed EEG so the application reproduces without the raw BDFs
+!application/cache/intervals.rds
 
-# Allow simulation outputs (each scenario stores RData under simulations/<name>/)
+# Keep committed result objects (simulation scenarios + comparison baselines)
 !simulations/**/*.RData
+!comparison/**/*.RData
 
 # LaTeX build artifacts
 *.aux
