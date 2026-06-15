@@ -2,7 +2,7 @@
 ### Produces the numbers needed to fill Table 4 (S*/M*) and Table 5 (G*) of
 ### the manuscript.
 
-repo_dir <- "/Users/peiliangbai/Documents/GitHub/Cohort"
+repo_dir <- getwd()   # run from the repo root
 setwd(repo_dir)
 
 scenario_meta <- list(

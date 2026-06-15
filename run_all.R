@@ -9,7 +9,7 @@ suppressPackageStartupMessages({
     library(parallel)
 })
 
-repo_dir <- "/Users/peiliangbai/Documents/GitHub/Cohort"
+repo_dir <- getwd()   # run from the repo root
 setwd(repo_dir)
 
 scenarios <- list(

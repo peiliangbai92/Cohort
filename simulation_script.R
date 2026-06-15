@@ -1,7 +1,6 @@
 ## Fast lasso VAR fitter overrides sparsevar::fitVAR for speed.
 local({
-    candidates <- c("fast_var.R", "../fast_var.R", "../../fast_var.R",
-                    "/Users/peiliangbai/Documents/GitHub/Cohort/fast_var.R")
+    candidates <- c("fast_var.R", "../fast_var.R", "../../fast_var.R")
     for (cand in candidates) {
         if (file.exists(cand)) {
             source(cand, local = FALSE)
